@@ -15,6 +15,8 @@ public class SubstitutionPermutationNetwork {
     // private final int key = 0b0011_1010_1001_0100_1101_0110_0011_1111;
     // TODO ykl: key below is only used for testing
     private final int key = 0b0001_0001_0010_1000_1000_1100_0000_0000; // TODO ykl: make this configurable
+    private final int[] encryptionRoundKeys = new int[roundCount + 1];
+    private final int[] decryptionRoundKeys = new int[roundCount + 1];
 
     public static SubstitutionPermutationNetwork init() {
         return new SubstitutionPermutationNetwork();
@@ -22,6 +24,7 @@ public class SubstitutionPermutationNetwork {
 
     public SubstitutionPermutationNetwork() {
         initSBoxInverse();
+        initRoundKeys();
     }
 
     private void initSBoxInverse() {
@@ -30,22 +33,48 @@ public class SubstitutionPermutationNetwork {
         }
     }
 
-    public int encrypt(int clearText) {
-        // initial round
-        clearText = clearText ^ getRoundKey(0);
-        // regular rounds
-        for (int i = 1; i < roundCount; i++) {
-            clearText = substitute(clearText);
-            clearText = permute(clearText);
-            clearText = clearText ^ getRoundKey(i);
+    private void initRoundKeys() {
+        // round keys for encryption
+        for (int i = 0; i <= roundCount; i++) {
+            encryptionRoundKeys[i] = getRoundKey(i);
         }
-        // final round
-        clearText = substitute(clearText);
-        clearText = clearText ^ getRoundKey(roundCount);
-        return clearText;
+
+        // round keys for decryption 
+        // TODO ykl: correctly flip key position
+        for (int i = 0; i <= roundCount; i++) {
+            deecryptionRoundKeys[i] = permute(encryptionRoundKeys[i]);
+        }
     }
 
-    public int substitute(int number) {
+    public int getRoundKey(int round) {
+        int mask = (1 << 16) - 1;
+        int start = 4 * (4 - round);
+        return (mask & (key >> start));
+    }
+
+    /* ****************************************************************************************** */
+
+    public int encrypt(int clearText) {
+        return encrypt(clearText, encryptionRoundKeys, sBox);
+    }
+
+    private int encryptInternal(int clearText, int[] keys, int[] sBox) {
+        int cipher = 0;
+        // initial round
+        cipher = clearText ^ keys[0];
+        // r -1 regular rounds
+        for (int i = 1; i < roundCount; i++) {
+            cipher = substitute(cipher, sBox);
+            cipher = permute(cipher);
+            cipher = cipher ^ keys[i];
+        }
+        // final shortened round
+        cipher = substitute(cipher, sBox);
+        cipher = cipher ^ keys[roundCount];
+        return cipher;
+    }
+
+    public int substitute(int number, int[] sBox) {
         int result = 0;
         for (int i = 0; i < substitutionBlockCount; i++) {
             int extract = (number >>> substitutionBlockLength * i) & ((1 << substitutionBlockLength) - 1);
@@ -63,9 +92,9 @@ public class SubstitutionPermutationNetwork {
         return result;
     }
 
-    public int getRoundKey(int round) {
-        int mask = (1 << 16) - 1;
-        int start = 4 * (4 - round);
-        return (mask & (key >> start));
+    /* ****************************************************************************************** */
+
+    public int decrypt(int cipher) {
+        return encryptInternal(cipher, decryptionRoundKeys, sBoxInverse);
     }
 }
