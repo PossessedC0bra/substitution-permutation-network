@@ -1,6 +1,6 @@
 package kry.spnctr;
 
-public class CtrBlockCipherMode implements IBlockCipherMode {
+public class CtrBlockCipherMode {
 
     private int blockSize;
 
