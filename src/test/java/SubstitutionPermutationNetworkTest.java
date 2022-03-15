@@ -1,8 +1,7 @@
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import spn.SubstitutionPermutationNetwork;
+import kry.spnctr.spn.SubstitutionPermutationNetwork;
 
 public class SubstitutionPermutationNetworkTest {
 
@@ -14,10 +13,24 @@ public class SubstitutionPermutationNetworkTest {
     }
 
     @Test
+    public void testDecryption() {
+        int input = 0b1010_1110_1011_0100;
+        SubstitutionPermutationNetwork spn = SubstitutionPermutationNetwork.init();
+        assertEquals(0b0001_0010_1000_1111, spn.decrypt(input));
+    }
+
+    @Test
     public void testSubstitution() {
         int input = 0b1111_0101_1010_1100;
         SubstitutionPermutationNetwork spn = SubstitutionPermutationNetwork.init();
-        assertEquals(0b0111_1111_0110_0101, spn.substitute(input));
+        assertEquals(0b0111_1111_0110_0101, spn.substitute(input, spn.sBox));
+    }
+
+    @Test
+    public void testInverseSubstitution() {
+        int input = 0b0111_1111_0110_0101;
+        SubstitutionPermutationNetwork spn = SubstitutionPermutationNetwork.init();
+        assertEquals(0b1111_0101_1010_1100, spn.substitute(input, spn.sBoxInverse));
     }
 
     @Test

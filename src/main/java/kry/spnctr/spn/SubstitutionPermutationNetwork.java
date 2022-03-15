@@ -1,4 +1,4 @@
-package spn;
+package kry.spnctr.spn;
 
 public class SubstitutionPermutationNetwork {
 
@@ -6,8 +6,8 @@ public class SubstitutionPermutationNetwork {
     private final int substitutionBlockLength = 4; // n
     private final int substitutionBlockCount = 4; // m
 
-    private final int[] sBox = new int[] {0b1110, 0b0100, 0b1101, 0b0001, 0b0010, 0b1111, 0b1011, 0b1000, 0b0011, 0b0001, 0b0110, 0b1100, 0b0101, 0b1001, 0b0000, 0b0111};
-    private final int[] sBoxInverse = new int[sBox.length];
+    public final int[] sBox = new int[] {0b1110, 0b0100, 0b1101, 0b0001, 0b0010, 0b1111, 0b1011, 0b1000, 0b0011, 0b1010, 0b0110, 0b1100, 0b0101, 0b1001, 0b0000, 0b0111};
+    public final int[] sBoxInverse = new int[sBox.length];
     private final int[] pBox = new int[] {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
 
     private final int totalKeyLength = 32; // s
@@ -39,11 +39,12 @@ public class SubstitutionPermutationNetwork {
             encryptionRoundKeys[i] = getRoundKey(i);
         }
 
-        // round keys for decryption 
-        // TODO ykl: correctly flip key position
-        for (int i = 0; i <= roundCount; i++) {
-            deecryptionRoundKeys[i] = permute(encryptionRoundKeys[i]);
+        // round keys for decryption
+        decryptionRoundKeys[0] = encryptionRoundKeys[encryptionRoundKeys.length - 1];
+        for (int i = 1; i < roundCount; i++) {
+            decryptionRoundKeys[roundCount - i] = permute(encryptionRoundKeys[i]);
         }
+        decryptionRoundKeys[encryptionRoundKeys.length - 1] = encryptionRoundKeys[0];
     }
 
     public int getRoundKey(int round) {
@@ -55,7 +56,7 @@ public class SubstitutionPermutationNetwork {
     /* ****************************************************************************************** */
 
     public int encrypt(int clearText) {
-        return encrypt(clearText, encryptionRoundKeys, sBox);
+        return encryptInternal(clearText, encryptionRoundKeys, sBox);
     }
 
     private int encryptInternal(int clearText, int[] keys, int[] sBox) {
