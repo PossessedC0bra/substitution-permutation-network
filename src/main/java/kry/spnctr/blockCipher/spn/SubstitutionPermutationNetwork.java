@@ -7,50 +7,45 @@ package kry.spnctr.blockCipher.spn;
  */
 public class SubstitutionPermutationNetwork {
 
-    private final int m_roundCount = 4; // r
-    private final int m_substitutionBlockLength = 4; // n
-    private final int m_substitutionBlockCount = 4; // m
+    private final int m_roundCount; // r
+    private final int m_substitutionBlockLength; // n
+    private final int m_substitutionBlockCount; // m
 
-    public final int[] m_sBox = new int[] {0b1110, 0b0100, 0b1101, 0b0001, 0b0010, 0b1111, 0b1011, 0b1000, 0b0011, 0b1010, 0b0110, 0b1100, 0b0101, 0b1001, 0b0000, 0b0111};
-    public final int[] m_inverseSBox = new int[m_sBox.length];
-    private final int[] m_pBox = new int[] {0, 4, 8, 12, 1, 5, 9, 13, 2, 6, 10, 14, 3, 7, 11, 15};
+    private final SBox m_sBox;
+    private final int[] m_pBox;
 
-    private final int totalKeyLength = 32; // s
-    private int m_key;
-    private final int[] m_encryptionRoundKeys = new int[m_roundCount + 1];
-    private final int[] m_decryptionRoundKeys = new int[m_roundCount + 1];
-
+    // int has a length of 32 bits -> s = 32
+    private final int m_key;
+    // TODO ykl: introduce key factory of some sorts
     // private IRoundKeyFactory m_keyFactory;
-
-    public static SubstitutionPermutationNetwork init(int key) {
-        return new SubstitutionPermutationNetwork(key);
-    }
+    private final int[] m_encryptionRoundKeys;
+    private final int[] m_decryptionRoundKeys;
 
     /**
-     *
-     * @param r number of rounds
-     * @param n length of substitution block
-     * @param m number of blocks to be substituted
-     * @param sBox
-     * @param pBox
-     * @param key
-     * @return
+     * @param r    number of rounds
+     * @param n    length of substitution block
+     * @param m    number of blocks to be substituted
+     * @param sBox definition of substitutions
+     * @param pBox definition of bit permutations
+     * @param key  key from which individual round keys will be generated
+     * @return a new instance of an SPN
      */
-    public static SubstitutionPermutationNetwork init(int r, int n, int m, int[] sBox, int[] pBox, int key) {
-        return new SubstitutionPermutationNetwork(key);
+    public static SubstitutionPermutationNetwork init(int r, int n, int m, SBox sBox, int[] pBox, int key) {
+        return new SubstitutionPermutationNetwork(r, n, m, sBox, pBox, key);
     }
 
-    public SubstitutionPermutationNetwork(int key) {
+    public SubstitutionPermutationNetwork(int r, int n, int m, SBox sBox, int[] pBox, int key) {
+        m_roundCount = r;
+        m_substitutionBlockLength = n;
+        m_substitutionBlockCount = m;
+
+        m_sBox = sBox;
+        m_pBox = pBox;
         m_key = key;
 
-        initInverseSBox();
+        m_encryptionRoundKeys = new int[m_roundCount + 1];
+        m_decryptionRoundKeys = new int[m_roundCount + 1];
         initRoundKeys();
-    }
-
-    private void initInverseSBox() {
-        for (int i = 0; i < m_sBox.length; i++) {
-            m_inverseSBox[m_sBox[i]] = i;
-        }
     }
 
     private void initRoundKeys() {
@@ -81,11 +76,19 @@ public class SubstitutionPermutationNetwork {
     /* ****************************************************************************************** */
 
     public int encrypt(int clearText) {
-        return encryptInternal(clearText, m_encryptionRoundKeys, m_sBox);
+        return encryptInternal(clearText, m_encryptionRoundKeys, m_sBox.get());
     }
 
+    /* ****************************************************************************************** */
+
+    public int decrypt(int cipher) {
+        return encryptInternal(cipher, m_decryptionRoundKeys, m_sBox.getInverse());
+    }
+
+    /* ****************************************************************************************** */
+
     private int encryptInternal(int clearText, int[] keys, int[] sBox) {
-        int cipher = 0;
+        int cipher;
         // initial round
         cipher = clearText ^ keys[0];
         // r -1 regular rounds
@@ -100,6 +103,7 @@ public class SubstitutionPermutationNetwork {
         return cipher;
     }
 
+    // TODO ykl: this is only public for tests -> make private
     public int substitute(int number, int[] sBox) {
         int result = 0;
         for (int i = 0; i < m_substitutionBlockCount; i++) {
@@ -110,17 +114,12 @@ public class SubstitutionPermutationNetwork {
         return result;
     }
 
+    // TODO ykl: this is only public for tests -> make private
     public int permute(int number) {
         int result = 0;
         for (int i = 0; i < m_substitutionBlockLength * m_substitutionBlockCount; i++) {
-            result |= ((number >>> i) & 1) <<  m_pBox[i];
+            result |= ((number >>> i) & 1) << m_pBox[i];
         }
         return result;
-    }
-
-    /* ****************************************************************************************** */
-
-    public int decrypt(int cipher) {
-        return encryptInternal(cipher, m_decryptionRoundKeys, m_inverseSBox);
     }
 }

@@ -20,19 +20,22 @@ public class Main {
     public static void main(String[] args) {
         // The input format is a string containing a bit representation
         String bitString = FileUtil.readFirstLineFromFile("/chiffre.txt");
-        byte[] bytes = BitUtil.readFromString(bitString);
+        byte[] bytes = BitUtil.readBitString(bitString);
+        if (bytes == null || bytes.length < 2) {
+            throw new IllegalArgumentException("Bit-string is too small to be processed by CTR");
+        }
 
         System.out.println(bitString);
         BitUtil.printByteArrayBitRepresentation(bytes);
 
-        // TODO ykl: refactor
-        // SubstitutionPermutationNetwork spn = SubstitutionPermutationNetwork.init(r, n, m, sBox, pBox, key);
-        // CtrBlockCipherMode blockCipherMode = new CtrBlockCipherMode(spn);
+        SubstitutionPermutationNetwork spn = SubstitutionPermutationNetwork.init(r, n, m, sBox, pBox, key);
+        CtrBlockCipherMode blockCipherMode = new CtrBlockCipherMode(spn);
 
-        CtrBlockCipherMode blockCipherMode = new CtrBlockCipherMode();
         byte[] plainTextBytes = blockCipherMode.decrypt(bytes);
         System.out.println(new String(plainTextBytes));
 
+        /* ****************************************************************************************** */
+        // Encryption
         /* ****************************************************************************************** */
 
         String plainText = "Gut gemacht!";

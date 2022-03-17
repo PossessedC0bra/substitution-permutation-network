@@ -16,7 +16,11 @@ public final class BitUtil {
      * @param bitString the string representing a binary number
      * @return byte[]
      */
-    public static byte[] readFromString(String bitString) {
+    public static byte[] readBitString(String bitString) {
+        if (bitString == null || bitString.isEmpty()) {
+            return null;
+        }
+
         byte[] bytes = new byte[bitString.length() / 8];
 
         int index = 0;

@@ -5,17 +5,15 @@ import kry.spnctr.blockCipher.spn.SubstitutionPermutationNetwork;
 public class CtrBlockCipherMode {
 
     private final static int SIZE_OF_BYTE = 8;
-    private final static int BYTE_MASK = (1 << SIZE_OF_BYTE) -1;
+    private final static int BYTE_MASK = (1 << SIZE_OF_BYTE) - 1;
 
     private static final int BLOCK_SIZE = 16;
     private static final int BLOCK_MASK = (1 << BLOCK_SIZE) - 1;
 
-    private static final int BLOCK_CIPHER_KEY = 0b0011_1010_1001_0100_1101_0110_0011_1111;
-
     private final SubstitutionPermutationNetwork blockCipher;
 
-    public CtrBlockCipherMode() {
-        blockCipher = SubstitutionPermutationNetwork.init(BLOCK_CIPHER_KEY);
+    public CtrBlockCipherMode(SubstitutionPermutationNetwork spn) {
+        blockCipher = spn;
     }
 
     public byte[] encrypt(byte[] plainText) {
