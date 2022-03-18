@@ -1,8 +1,8 @@
 package kry.spnctr.blockCipherMode;
 
-import kry.spnctr.blockCipher.spn.SubstitutionPermutationNetwork;
+import kry.spnctr.blockCipher.IBlockCipher;
 
-public class CtrBlockCipherMode {
+public class CtrBlockCipherMode implements IBlockCipherMode {
 
     private final static int SIZE_OF_BYTE = 8;
     private final static int BYTE_MASK = (1 << SIZE_OF_BYTE) - 1;
@@ -10,12 +10,13 @@ public class CtrBlockCipherMode {
     private static final int BLOCK_SIZE = 16;
     private static final int BLOCK_MASK = (1 << BLOCK_SIZE) - 1;
 
-    private final SubstitutionPermutationNetwork blockCipher;
+    private final IBlockCipher m_blockCipher;
 
-    public CtrBlockCipherMode(SubstitutionPermutationNetwork spn) {
-        blockCipher = spn;
+    public CtrBlockCipherMode(IBlockCipher blockCipher) {
+        m_blockCipher = blockCipher;
     }
 
+    @Override
     public byte[] encrypt(byte[] plainText) {
         byte[] paddedPlainText = padPlainText(plainText);
 
@@ -29,7 +30,7 @@ public class CtrBlockCipherMode {
         int counter = 0;
         for (int i = 0; i < paddedPlainText.length; i = i + 2) {
             int increasedNonce = (nonce + counter++) & BLOCK_MASK;
-            int encryptedNonce = blockCipher.encrypt(increasedNonce);
+            int encryptedNonce = m_blockCipher.encrypt(increasedNonce);
 
             int block = (paddedPlainText[i] << SIZE_OF_BYTE) | Byte.toUnsignedInt(paddedPlainText[i + 1]);
             int encryptedBlock = encryptedNonce ^ block;
@@ -48,7 +49,7 @@ public class CtrBlockCipherMode {
     }
 
     private byte[] getPaddingBytes(boolean divisibleByBlockSize) {
-        return divisibleByBlockSize ? new byte[] {Byte.MIN_VALUE, 0} : new byte[] {Byte.MIN_VALUE};
+        return divisibleByBlockSize ? new byte[] { Byte.MIN_VALUE, 0 } : new byte[] { Byte.MIN_VALUE };
     }
 
     private byte[] padByteArray(byte[] original, byte[] padding) {
@@ -60,6 +61,7 @@ public class CtrBlockCipherMode {
 
     /* ****************************************************************************************** */
 
+    @Override
     public byte[] decrypt(byte[] cipher) {
         int nonce = (cipher[0] << SIZE_OF_BYTE) | Byte.toUnsignedInt(cipher[1]);
 
@@ -69,7 +71,7 @@ public class CtrBlockCipherMode {
         int counter = 0;
         for (int i = 2; i < cipher.length; i = i + 2) {
             int increasedNonce = (nonce + counter++) & ((1 << BLOCK_SIZE) - 1);
-            int encryptedNonce = blockCipher.encrypt(increasedNonce);
+            int encryptedNonce = m_blockCipher.encrypt(increasedNonce);
 
             int block = (cipher[i] << SIZE_OF_BYTE | Byte.toUnsignedInt(cipher[i + 1]));
             int decryptedBlock = encryptedNonce ^ block;

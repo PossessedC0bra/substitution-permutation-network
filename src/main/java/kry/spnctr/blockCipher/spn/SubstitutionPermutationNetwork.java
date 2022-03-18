@@ -1,11 +1,13 @@
 package kry.spnctr.blockCipher.spn;
 
+import kry.spnctr.blockCipher.IBlockCipher;
+
 /**
  * A Substitution Permutation Network with a fixed block size of 16 and a maximum key length of 32
  *
  * <b>Note:</b> due to performance reasons all calculations are done with integers
  */
-public class SubstitutionPermutationNetwork {
+public class SubstitutionPermutationNetwork implements IBlockCipher {
 
     private final int m_roundCount; // r
     private final int m_substitutionBlockLength; // n
@@ -75,12 +77,14 @@ public class SubstitutionPermutationNetwork {
 
     /* ****************************************************************************************** */
 
+    @Override
     public int encrypt(int clearText) {
         return encryptInternal(clearText, m_encryptionRoundKeys, m_sBox.get());
     }
 
     /* ****************************************************************************************** */
 
+    @Override
     public int decrypt(int cipher) {
         return encryptInternal(cipher, m_decryptionRoundKeys, m_sBox.getInverse());
     }
