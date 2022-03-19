@@ -18,7 +18,7 @@ public class SubstitutionPermutationNetworkTest {
 
     @Before
     public void init() {
-        spn = SubstitutionPermutationNetwork.init(r, n, m, sBox, pBox, key);
+        spn = new SubstitutionPermutationNetwork(r, n, m, sBox, pBox, key);
     }
 
     @Test

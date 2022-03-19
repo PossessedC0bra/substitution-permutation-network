@@ -9,6 +9,9 @@ import kry.spnctr.blockCipher.IBlockCipher;
  */
 public class SubstitutionPermutationNetwork implements IBlockCipher {
 
+    private static final int SIZE_OF_BLOCK = 16;
+    private static final int BLOCK_MASK = (1 << SIZE_OF_BLOCK) - 1;
+
     private final int m_roundCount; // r
     private final int m_substitutionBlockLength; // n
     private final int m_substitutionBlockCount; // m
@@ -32,10 +35,6 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
      * @param key  key from which individual round keys will be generated
      * @return a new instance of an SPN
      */
-    public static SubstitutionPermutationNetwork init(int r, int n, int m, SBox sBox, int[] pBox, int key) {
-        return new SubstitutionPermutationNetwork(r, n, m, sBox, pBox, key);
-    }
-
     public SubstitutionPermutationNetwork(int r, int n, int m, SBox sBox, int[] pBox, int key) {
         m_roundCount = r;
         m_substitutionBlockLength = n;
@@ -62,9 +61,8 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
     }
 
     public int getRoundKey(int round) {
-        int mask = (1 << 16) - 1;
-        int start = 4 * (4 - round);
-        return (mask & (m_key >> start));
+        int start = 4 * (m_roundCount - round);
+        return (m_key >> start) & BLOCK_MASK;
     }
 
     private void initDecryptionRoundKeys() {

@@ -18,28 +18,16 @@ public class Main {
     private static final int key = 0b0011_1010_1001_0100_1101_0110_0011_1111;
 
     public static void main(String[] args) {
-        // The input format is a string containing a bit representation
         String bitString = FileUtil.readFirstLineFromFile("/chiffre.txt");
         byte[] bytes = BitUtil.readBitString(bitString);
         if (bytes == null || bytes.length < 2) {
             throw new IllegalArgumentException("Bit-string is too small to be processed by CTR");
         }
 
-        System.out.println(bitString);
-        BitUtil.printByteArrayBitRepresentation(bytes);
-
-        SubstitutionPermutationNetwork spn = SubstitutionPermutationNetwork.init(r, n, m, sBox, pBox, key);
+        SubstitutionPermutationNetwork spn = new SubstitutionPermutationNetwork(r, n, m, sBox, pBox, key);
         CtrBlockCipherMode blockCipherMode = new CtrBlockCipherMode(spn);
 
         byte[] plainTextBytes = blockCipherMode.decrypt(bytes);
-        System.out.println(new String(plainTextBytes));
-
-        /* ****************************************************************************************** */
-        // Encryption
-        /* ****************************************************************************************** */
-
-        String plainText = "Gut gemacht!";
-        byte[] encryptedText = blockCipherMode.encrypt(plainText.getBytes(StandardCharsets.US_ASCII));
-        System.out.println(new String(blockCipherMode.decrypt(encryptedText)));
+        System.out.println(new String(plainTextBytes, StandardCharsets.UTF_8));
     }
 }

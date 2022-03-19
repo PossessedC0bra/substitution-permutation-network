@@ -7,8 +7,8 @@ public class CtrBlockCipherMode implements IBlockCipherMode {
     private final static int SIZE_OF_BYTE = 8;
     private final static int BYTE_MASK = (1 << SIZE_OF_BYTE) - 1;
 
-    private static final int BLOCK_SIZE = 16;
-    private static final int BLOCK_MASK = (1 << BLOCK_SIZE) - 1;
+    private static final int SIZE_OF_BLOCK = 16;
+    private static final int BLOCK_MASK = (1 << SIZE_OF_BLOCK) - 1;
 
     private final IBlockCipher m_blockCipher;
 
@@ -43,7 +43,7 @@ public class CtrBlockCipherMode implements IBlockCipherMode {
     }
 
     private byte[] padPlainText(byte[] bytes) {
-        boolean divisibleByBlockSize = (bytes.length * SIZE_OF_BYTE) % BLOCK_SIZE == 0;
+        boolean divisibleByBlockSize = (bytes.length * SIZE_OF_BYTE) % SIZE_OF_BLOCK == 0;
         byte[] paddingBytes = getPaddingBytes(divisibleByBlockSize);
         return padByteArray(bytes, paddingBytes);
     }
@@ -70,13 +70,13 @@ public class CtrBlockCipherMode implements IBlockCipherMode {
 
         int counter = 0;
         for (int i = 2; i < cipher.length; i = i + 2) {
-            int increasedNonce = (nonce + counter++) & ((1 << BLOCK_SIZE) - 1);
+            int increasedNonce = (nonce + counter++) & ((1 << SIZE_OF_BLOCK) - 1);
             int encryptedNonce = m_blockCipher.encrypt(increasedNonce);
 
             int block = (cipher[i] << SIZE_OF_BYTE | Byte.toUnsignedInt(cipher[i + 1]));
             int decryptedBlock = encryptedNonce ^ block;
 
-            paddedPlainTextBytes[i - 2] = (byte) ((decryptedBlock >>> 8) & BYTE_MASK);
+            paddedPlainTextBytes[i - 2] = (byte) ((decryptedBlock >>> SIZE_OF_BYTE) & BYTE_MASK);
             paddedPlainTextBytes[i - 1] = (byte) (decryptedBlock & BYTE_MASK);
         }
 
