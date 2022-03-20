@@ -1,8 +1,7 @@
-package kry.spnctr.util;
+package kry.util;
 
 public final class BitUtil {
 
-    private final static char ZERO = '0';
     private final static char ONE = '1';
 
     private BitUtil() {
@@ -43,9 +42,5 @@ public final class BitUtil {
             sb.append(Integer.toBinaryString(convertedInteger).substring(1));
         }
         System.out.println(sb);
-    }
-
-    public static int allOnes(int oneCount) {
-        return (1 << oneCount) - 1;
     }
 }

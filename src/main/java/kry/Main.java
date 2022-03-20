@@ -1,10 +1,10 @@
-package kry.spnctr;
+package kry;
 
-import kry.spnctr.blockCipher.spn.SBox;
-import kry.spnctr.blockCipher.spn.SubstitutionPermutationNetwork;
-import kry.spnctr.blockCipherMode.CtrBlockCipherMode;
-import kry.spnctr.util.BitUtil;
-import kry.spnctr.util.FileUtil;
+import kry.blockCipher.spn.SBox;
+import kry.blockCipher.spn.SubstitutionPermutationNetwork;
+import kry.blockCipherMode.CtrBlockCipherMode;
+import kry.util.BitUtil;
+import kry.util.FileUtil;
 
 import java.nio.charset.StandardCharsets;
 
@@ -20,9 +20,7 @@ public class Main {
     public static void main(String[] args) {
         String bitString = FileUtil.readFirstLineFromFile("/chiffre.txt");
         byte[] bytes = BitUtil.readBitString(bitString);
-        if (bytes == null || bytes.length < 2) {
-            throw new IllegalArgumentException("Bit-string is too small to be processed by CTR");
-        }
+        BitUtil.printByteArrayBitRepresentation(bytes);
 
         SubstitutionPermutationNetwork spn = new SubstitutionPermutationNetwork(r, n, m, sBox, pBox, key);
         CtrBlockCipherMode blockCipherMode = new CtrBlockCipherMode(spn);

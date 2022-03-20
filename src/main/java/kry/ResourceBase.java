@@ -1,9 +1,9 @@
-package kry.spnctr;
+package kry;
 
 /**
  * Helper class for accessing resources.
  * <p>
- * Usage: <code>kry.spnctr.ResourceBase.class.getResource("relativeFolder/file.ext")</code>
+ * Usage: <code>kry.ResourceBase.class.getResource("relativeFolder/file.ext")</code>
  */
 public final class ResourceBase {
     private ResourceBase() {}

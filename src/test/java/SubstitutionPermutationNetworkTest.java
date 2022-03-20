@@ -1,5 +1,5 @@
-import kry.spnctr.blockCipher.spn.SBox;
-import kry.spnctr.blockCipher.spn.SubstitutionPermutationNetwork;
+import kry.blockCipher.spn.SBox;
+import kry.blockCipher.spn.SubstitutionPermutationNetwork;
 import org.junit.Before;
 import org.junit.Test;
 

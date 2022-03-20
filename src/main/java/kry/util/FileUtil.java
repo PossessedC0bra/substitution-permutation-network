@@ -1,6 +1,6 @@
-package kry.spnctr.util;
+package kry.util;
 
-import kry.spnctr.ResourceBase;
+import kry.ResourceBase;
 
 import java.io.BufferedReader;
 import java.io.IOException;

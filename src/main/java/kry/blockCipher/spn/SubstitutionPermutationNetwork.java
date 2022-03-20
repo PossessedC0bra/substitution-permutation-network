@@ -1,6 +1,6 @@
-package kry.spnctr.blockCipher.spn;
+package kry.blockCipher.spn;
 
-import kry.spnctr.blockCipher.IBlockCipher;
+import kry.blockCipher.IBlockCipher;
 
 /**
  * A Substitution Permutation Network with a fixed block size of 16 and a maximum key length of 32
@@ -12,19 +12,17 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
     private static final int SIZE_OF_BLOCK = 16;
     private static final int BLOCK_MASK = (1 << SIZE_OF_BLOCK) - 1;
 
-    private final int m_roundCount; // r
-    private final int m_substitutionBlockLength; // n
-    private final int m_substitutionBlockCount; // m
+    private final int roundCount; // r
+    private final int substitutionBlockLength; // n
+    private final int substitutionBlockCount; // m
 
-    private final SBox m_sBox;
-    private final int[] m_pBox;
+    private final SBox sBox;
+    private final int[] pBox;
 
     // int has a length of 32 bits -> s = 32
-    private final int m_key;
-    // TODO ykl: introduce key factory of some sorts
-    // private IRoundKeyFactory m_keyFactory;
-    private final int[] m_encryptionRoundKeys;
-    private final int[] m_decryptionRoundKeys;
+    private final int key;
+    private final int[] encryptionRoundKeys;
+    private final int[] decryptionRoundKeys;
 
     /**
      * @param r    number of rounds
@@ -33,19 +31,18 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
      * @param sBox definition of substitutions
      * @param pBox definition of bit permutations
      * @param key  key from which individual round keys will be generated
-     * @return a new instance of an SPN
      */
     public SubstitutionPermutationNetwork(int r, int n, int m, SBox sBox, int[] pBox, int key) {
-        m_roundCount = r;
-        m_substitutionBlockLength = n;
-        m_substitutionBlockCount = m;
+        roundCount = r;
+        substitutionBlockLength = n;
+        substitutionBlockCount = m;
 
-        m_sBox = sBox;
-        m_pBox = pBox;
-        m_key = key;
+        this.sBox = sBox;
+        this.pBox = pBox;
 
-        m_encryptionRoundKeys = new int[m_roundCount + 1];
-        m_decryptionRoundKeys = new int[m_roundCount + 1];
+        this.key = key;
+        encryptionRoundKeys = new int[roundCount + 1];
+        decryptionRoundKeys = new int[roundCount + 1];
         initRoundKeys();
     }
 
@@ -55,36 +52,36 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
     }
 
     private void initEncryptionRoundKeys() {
-        for (int i = 0; i <= m_roundCount; i++) {
-            m_encryptionRoundKeys[i] = getRoundKey(i);
+        for (int i = 0; i <= roundCount; i++) {
+            encryptionRoundKeys[i] = getRoundKey(i);
         }
     }
 
     public int getRoundKey(int round) {
-        int start = 4 * (m_roundCount - round);
-        return (m_key >> start) & BLOCK_MASK;
+        int start = 4 * (roundCount - round);
+        return (key >> start) & BLOCK_MASK;
     }
 
     private void initDecryptionRoundKeys() {
-        m_decryptionRoundKeys[0] = m_encryptionRoundKeys[m_encryptionRoundKeys.length - 1];
-        for (int i = 1; i < m_roundCount; i++) {
-            m_decryptionRoundKeys[m_roundCount - i] = permute(m_encryptionRoundKeys[i]);
+        decryptionRoundKeys[0] = encryptionRoundKeys[encryptionRoundKeys.length - 1];
+        for (int i = 1; i < roundCount; i++) {
+            decryptionRoundKeys[roundCount - i] = permute(encryptionRoundKeys[i]);
         }
-        m_decryptionRoundKeys[m_encryptionRoundKeys.length - 1] = m_encryptionRoundKeys[0];
+        decryptionRoundKeys[encryptionRoundKeys.length - 1] = encryptionRoundKeys[0];
     }
 
     /* ****************************************************************************************** */
 
     @Override
     public int encrypt(int clearText) {
-        return encryptInternal(clearText, m_encryptionRoundKeys, m_sBox.get());
+        return encryptInternal(clearText, encryptionRoundKeys, sBox.get());
     }
 
     /* ****************************************************************************************** */
 
     @Override
     public int decrypt(int cipher) {
-        return encryptInternal(cipher, m_decryptionRoundKeys, m_sBox.getInverse());
+        return encryptInternal(cipher, decryptionRoundKeys, sBox.getInverse());
     }
 
     /* ****************************************************************************************** */
@@ -94,24 +91,24 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
         // initial round
         cipher = clearText ^ keys[0];
         // r -1 regular rounds
-        for (int i = 1; i < m_roundCount; i++) {
+        for (int i = 1; i < roundCount; i++) {
             cipher = substitute(cipher, sBox);
             cipher = permute(cipher);
-            cipher = cipher ^ keys[i];
+            cipher ^= keys[i];
         }
         // final shortened round
         cipher = substitute(cipher, sBox);
-        cipher = cipher ^ keys[m_roundCount];
+        cipher ^= keys[roundCount];
         return cipher;
     }
 
     // TODO ykl: this is only public for tests -> make private
     public int substitute(int number, int[] sBox) {
         int result = 0;
-        for (int i = 0; i < m_substitutionBlockCount; i++) {
-            int extract = (number >>> m_substitutionBlockLength * i) & ((1 << m_substitutionBlockLength) - 1);
+        for (int i = 0; i < substitutionBlockCount; i++) {
+            int extract = (number >>> substitutionBlockLength * i) & ((1 << substitutionBlockLength) - 1);
             int substitution = sBox[extract];
-            result |= substitution << m_substitutionBlockLength * i;
+            result |= substitution << substitutionBlockLength * i;
         }
         return result;
     }
@@ -119,8 +116,8 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
     // TODO ykl: this is only public for tests -> make private
     public int permute(int number) {
         int result = 0;
-        for (int i = 0; i < m_substitutionBlockLength * m_substitutionBlockCount; i++) {
-            result |= ((number >>> i) & 1) << m_pBox[i];
+        for (int i = 0; i < substitutionBlockLength * substitutionBlockCount; i++) {
+            result |= ((number >>> i) & 1) << pBox[i];
         }
         return result;
     }
