@@ -57,7 +57,7 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
         }
     }
 
-    public int getRoundKey(int round) {
+    private int getRoundKey(int round) {
         int start = 4 * (roundCount - round);
         return (key >> start) & BLOCK_MASK;
     }
@@ -102,8 +102,7 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
         return cipher;
     }
 
-    // TODO ykl: this is only public for tests -> make private
-    public int substitute(int number, int[] sBox) {
+    private int substitute(int number, int[] sBox) {
         int result = 0;
         for (int i = 0; i < substitutionBlockCount; i++) {
             int extract = (number >>> substitutionBlockLength * i) & ((1 << substitutionBlockLength) - 1);
@@ -113,8 +112,7 @@ public class SubstitutionPermutationNetwork implements IBlockCipher {
         return result;
     }
 
-    // TODO ykl: this is only public for tests -> make private
-    public int permute(int number) {
+    private int permute(int number) {
         int result = 0;
         for (int i = 0; i < substitutionBlockLength * substitutionBlockCount; i++) {
             result |= ((number >>> i) & 1) << pBox[i];
