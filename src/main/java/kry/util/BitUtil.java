@@ -4,6 +4,9 @@ public final class BitUtil {
 
     private final static char ONE = '1';
 
+    private final static int SIZE_OF_BYTE = 8;
+    private final static int BYTE_MASK = (1 << SIZE_OF_BYTE) - 1;
+
     private BitUtil() {
     }
 
@@ -38,7 +41,7 @@ public final class BitUtil {
         StringBuilder sb = new StringBuilder();
         for (byte loadedByte : bytes) {
             // extending byte by 2^8 so leading zeros are formatted correctly
-            int convertedInteger = (loadedByte & 0b1111_1111) + (1 << 8);
+            int convertedInteger = (loadedByte & BYTE_MASK) + (1 << 8);
             sb.append(Integer.toBinaryString(convertedInteger).substring(1));
         }
         System.out.println(sb);

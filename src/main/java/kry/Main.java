@@ -6,8 +6,6 @@ import kry.blockCipherMode.CtrBlockCipherMode;
 import kry.util.BitUtil;
 import kry.util.FileUtil;
 
-import java.nio.charset.StandardCharsets;
-
 public class Main {
 
     private static final int r = 4;
@@ -26,6 +24,6 @@ public class Main {
         CtrBlockCipherMode blockCipherMode = new CtrBlockCipherMode(spn);
 
         byte[] plainTextBytes = blockCipherMode.decrypt(bytes);
-        System.out.println(new String(plainTextBytes, StandardCharsets.UTF_8));
+        System.out.println(new String(plainTextBytes));
     }
 }

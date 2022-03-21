@@ -24,35 +24,30 @@ public class SubstitutionPermutationNetworkTest {
     @Test
     public void testEncryption() {
         int input = 0b0001_0010_1000_1111;
-
         assertEquals(0b1010_1110_1011_0100, spn.encrypt(input));
     }
 
     @Test
     public void testDecryption() {
         int input = 0b1010_1110_1011_0100;
-        
         assertEquals(0b0001_0010_1000_1111, spn.decrypt(input));
     }
 
     @Test
     public void testSubstitution() {
         int input = 0b1111_0101_1010_1100;
-
         assertEquals(0b0111_1111_0110_0101, spn.substitute(input, sBox.get()));
     }
 
     @Test
     public void testInverseSubstitution() {
         int input = 0b0111_1111_0110_0101;
-
         assertEquals(0b1111_0101_1010_1100, spn.substitute(input, sBox.getInverse()));
     }
 
     @Test
     public void testPermutation() {
         int input = 0b1111_0101_1010_1100;
-        
         assertEquals(0b1011_1101_1010_1100, spn.permute(input));
     }
 
