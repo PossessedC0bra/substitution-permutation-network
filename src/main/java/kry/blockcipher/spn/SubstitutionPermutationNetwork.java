@@ -1,6 +1,6 @@
-package kry.blockCipher.spn;
+package kry.blockcipher.spn;
 
-import kry.blockCipher.IBlockCipher;
+import kry.blockcipher.IBlockCipher;
 
 /**
  * A Substitution Permutation Network with a fixed block size of 16 and a maximum key length of 32

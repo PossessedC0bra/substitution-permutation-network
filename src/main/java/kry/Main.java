@@ -1,8 +1,8 @@
 package kry;
 
-import kry.blockCipher.spn.SBox;
-import kry.blockCipher.spn.SubstitutionPermutationNetwork;
-import kry.blockCipherMode.CtrBlockCipherMode;
+import kry.blockcipher.spn.SBox;
+import kry.blockcipher.spn.SubstitutionPermutationNetwork;
+import kry.blockciphermode.CtrBlockCipherMode;
 import kry.util.BitUtil;
 import kry.util.FileUtil;
 

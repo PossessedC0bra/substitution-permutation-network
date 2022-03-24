@@ -1,4 +1,4 @@
-package kry.blockCipher;
+package kry.blockcipher;
 
 public interface IBlockCipher {
 

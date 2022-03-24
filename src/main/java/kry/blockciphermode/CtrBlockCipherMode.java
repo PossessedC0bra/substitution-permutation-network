@@ -1,6 +1,6 @@
-package kry.blockCipherMode;
+package kry.blockciphermode;
 
-import kry.blockCipher.IBlockCipher;
+import kry.blockcipher.IBlockCipher;
 
 public class CtrBlockCipherMode implements IBlockCipherMode {
 

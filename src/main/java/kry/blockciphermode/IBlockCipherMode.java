@@ -1,4 +1,4 @@
-package kry.blockCipherMode;
+package kry.blockciphermode;
 
 public interface IBlockCipherMode {
 

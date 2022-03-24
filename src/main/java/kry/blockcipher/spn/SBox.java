@@ -1,4 +1,4 @@
-package kry.blockCipher.spn;
+package kry.blockcipher.spn;
 
 public class SBox {
 
